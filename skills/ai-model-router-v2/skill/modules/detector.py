@@ -31,6 +31,9 @@ class ModelInfo:
     pricing_usd_per_million_tokens: Optional[dict] = None
     openai_base_url: Optional[str] = None
     anthropic_base_url: Optional[str] = None
+    max_output_tokens: Optional[int] = None
+    reasoning_efforts: List[str] = None
+    pricing_tiers_usd_per_million_tokens: Optional[dict] = None
 
     def __post_init__(self):
         if self.capabilities is None:
@@ -126,25 +129,32 @@ class ModelDetector:
             ModelInfo("openai:gpt-4o-mini", "GPT-4o Mini", "OpenAI", "cloud", 1, 50),
             ModelInfo("openai:gpt-4o", "GPT-4o", "OpenAI", "cloud", 5, 85),
             ModelInfo(
-                "minimax:MiniMax-M3", "MiniMax M3", "MiniMax", "cloud", 2, 90,
+                "minimax:MiniMax-M3.1-Flash", "MiniMax M3.1 Flash", "MiniMax", "cloud", 1, 90,
                 capabilities=["chat", "vision"],
                 context_window=1_000_000,
+                max_output_tokens=524_288,
                 input_modalities=["text", "image", "video"],
-                thinking=["adaptive", "disabled"],
+                thinking=["adaptive"],
+                reasoning_efforts=["low", "medium", "high", "xhigh", "max"],
                 pricing_usd_per_million_tokens={
-                    "input": 0.6, "output": 2.4, "cache_read": 0.12, "cache_write": None,
+                    "input": 0.15, "output": 0.6, "cache_read": 0.015, "cache_write": None,
                 },
                 openai_base_url=MINIMAX_ENDPOINTS["global_en"]["openai_base_url"],
                 anthropic_base_url=MINIMAX_ENDPOINTS["global_en"]["anthropic_base_url"],
             ),
             ModelInfo(
-                "minimax:MiniMax-M2.7", "MiniMax M2.7", "MiniMax", "cloud", 1, 70,
-                capabilities=["chat"],
-                context_window=204_800,
-                input_modalities=["text"],
-                thinking=["always_on"],
+                "minimax:MiniMax-M3", "MiniMax M3", "MiniMax", "cloud", 2, 90,
+                capabilities=["chat", "vision"],
+                context_window=1_000_000,
+                input_modalities=["text", "image", "video"],
+                thinking=["adaptive", "disabled"],
+                # Standard pricing; preserve the published 512k tier label.
                 pricing_usd_per_million_tokens={
-                    "input": 0.3, "output": 1.2, "cache_read": 0.06, "cache_write": 0.375,
+                    "input": 0.3, "output": 1.2, "cache_read": 0.06, "cache_write": None,
+                },
+                pricing_tiers_usd_per_million_tokens={
+                    "<=512k": {"input": 0.3, "output": 1.2, "cache_read": 0.06},
+                    ">512k": {"input": 0.6, "output": 2.4, "cache_read": 0.12},
                 },
                 openai_base_url=MINIMAX_ENDPOINTS["global_en"]["openai_base_url"],
                 anthropic_base_url=MINIMAX_ENDPOINTS["global_en"]["anthropic_base_url"],
